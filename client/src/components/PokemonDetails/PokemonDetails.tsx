@@ -1,3 +1,5 @@
+import { useLayoutEffect, useRef } from 'react';
+
 import type { Pokemon, PokemonSpecies } from '../../interfaces';
 import {
   getPokemonTypeLabel,
@@ -78,12 +80,66 @@ function PokemonDetails({
   pokemon,
   species,
 }: PokemonDetailsProps): React.JSX.Element | null {
+  const nameRef = useRef<HTMLHeadingElement>(null);
+  const nameTextRef = useRef<HTMLSpanElement>(null);
+  const displayName = species?.name ?? pokemon?.name ?? '';
+
+  useLayoutEffect(() => {
+    const nameElement = nameRef.current;
+    const nameTextElement = nameTextRef.current;
+
+    if (!nameElement || !nameTextElement) {
+      return;
+    }
+
+    let isActive = true;
+
+    const fitName = (): void => {
+      nameElement.style.removeProperty('font-size');
+
+      const baseFontSize = Number.parseFloat(
+        window.getComputedStyle(nameElement).fontSize,
+      );
+      const safeWidth = nameElement.clientWidth - 8;
+      const requiredWidth = nameTextElement.getBoundingClientRect().width;
+
+      if (requiredWidth <= safeWidth || safeWidth <= 0) {
+        return;
+      }
+
+      const minimumFontSize = 2.2 * Number.parseFloat(
+        window.getComputedStyle(document.documentElement).fontSize,
+      );
+      const fittedFontSize = Math.max(
+        minimumFontSize,
+        baseFontSize * (safeWidth / requiredWidth),
+      );
+
+      nameElement.style.fontSize = fittedFontSize + 'px';
+    };
+
+    fitName();
+
+    const resizeObserver = new ResizeObserver(fitName);
+    resizeObserver.observe(nameElement.parentElement ?? nameElement);
+
+    void document.fonts.ready.then(() => {
+      if (isActive) {
+        fitName();
+      }
+    });
+
+    return () => {
+      isActive = false;
+      resizeObserver.disconnect();
+    };
+  }, [displayName]);
+
   if (!pokemon) {
     return null;
   }
 
   const formattedId = String(pokemon.id).padStart(3, '0');
-  const displayName = species?.name ?? pokemon.name;
   const titleId = 'pokemon-details-' + pokemon.id;
 
   return (
@@ -120,8 +176,12 @@ function PokemonDetails({
                 <span className="pokemon-details__badge">Bebé</span>
               )}
             </div>
-            <h2 className="pokemon-details__name" id={titleId}>
-              {displayName}
+            <h2
+              className="pokemon-details__name"
+              id={titleId}
+              ref={nameRef}
+            >
+              <span ref={nameTextRef}>{displayName}</span>
             </h2>
 
             <ul className="pokemon-details__types" aria-label="Tipos">

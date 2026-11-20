@@ -72,10 +72,13 @@
 }
 
 .pokemon-details__name {
+  width: 100%;
+  max-width: 100%;
   margin: 0 0 18px;
   font-size: clamp(2.2rem, 5vw, 4rem);
   line-height: 1;
   letter-spacing: -0.055em;
+  white-space: nowrap;
 }
 
 .pokemon-details__types,
