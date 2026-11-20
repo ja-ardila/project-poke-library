@@ -20,10 +20,7 @@ function Main(): React.JSX.Element {
           </p>
           <SearchForm onSearch={handleSearch} />
         </div>
-        <div className="hero__visual" aria-hidden="true">
-          <span className="hero__visual-number">151</span>
-          <span className="hero__visual-label">Pokémon de Kanto</span>
-        </div>
+        <div className="hero__visual" aria-hidden="true" />
       </section>
 
       <section className="catalog" aria-labelledby="catalog-title">

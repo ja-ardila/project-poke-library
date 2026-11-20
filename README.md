@@ -50,3 +50,18 @@ Comprueba la calidad y genera la compilación de producción:
 
 La aplicación utilizará exclusivamente los recursos de Pokémon y especies de
 [PokéAPI v2](https://pokeapi.co/docs/v2).
+
+### Capa de datos
+
+El cliente mantiene separadas las respuestas originales de PokéAPI y los
+modelos simplificados que consumirá React:
+
+- interfaces/PokeApi.ts describe las respuestas de los dos endpoints.
+- interfaces/Pokemon.ts define los modelos internos de la aplicación.
+- utils/pokemonMappers.ts normaliza imágenes, nombres, tipos, habilidades,
+  estadísticas y textos localizados.
+- utils/pokeApi.ts centraliza solicitudes, validación, errores, cancelación y
+  caché en memoria.
+
+La información de especie prioriza contenido en español, utiliza inglés como
+respaldo y limpia los saltos y caracteres de control de las descripciones.
