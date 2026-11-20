@@ -7,9 +7,14 @@
 @import url('./blocks/navigation.css');
 @import url('./blocks/main.css');
 @import url('./blocks/search-form.css');
+@import url('./blocks/catalog-controls.css');
+@import url('./blocks/pokemon-grid.css');
+@import url('./blocks/pokemon-card.css');
+@import url('./blocks/error-message.css');
+@import url('./blocks/empty-state.css');
 @import url('./blocks/footer.css');
 @import url('./blocks/about.css');
 @import url('./blocks/not-found.css');
 @import url('./blocks/preloader.css');
-@import url('./blocks/modal.css');
+@import url('./blocks/popup.css');
 

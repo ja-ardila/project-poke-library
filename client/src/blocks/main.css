@@ -107,30 +107,10 @@
   font-weight: 500;
 }
 
-.catalog__placeholder {
-  min-height: 240px;
-  padding: 48px;
-  border: 1px dashed #b7c4d9;
-  border-radius: 28px;
-  background-color: rgba(255, 255, 255, 0.7);
+.catalog__load-more {
+  margin-top: 40px;
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  text-align: center;
-}
-
-.catalog__placeholder-title {
-  margin: 0 0 10px;
-  font-size: 1.2rem;
-  font-weight: 900;
-}
-
-.catalog__placeholder-text {
-  max-width: 590px;
-  margin: 0;
-  color: var(--color-muted);
-  line-height: 1.6;
 }
 
 @media screen and (max-width: 820px) {
@@ -163,10 +143,8 @@
     flex-direction: column;
   }
 
-  .catalog__placeholder {
-    min-height: 220px;
-    padding: 32px 20px;
-    border-radius: 22px;
+  .catalog__status {
+    font-size: 0.75rem;
   }
 }
 

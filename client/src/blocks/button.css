@@ -24,10 +24,54 @@
   transform: translateY(-1px);
 }
 
+.button_variant_secondary {
+  border-color: var(--color-primary);
+  background-color: #fff;
+  color: var(--color-primary);
+}
+
+.button_variant_secondary:hover {
+  border-color: var(--color-primary);
+  background-color: #eef4ff;
+}
+
+.button_variant_ghost {
+  min-height: 40px;
+  padding: 0;
+  border-color: transparent;
+  background-color: transparent;
+  color: var(--color-primary);
+}
+
+.button_variant_ghost:hover {
+  border-color: transparent;
+  background-color: transparent;
+  color: var(--color-primary-dark);
+  transform: none;
+  text-decoration: underline;
+}
+
 .button:disabled {
   border-color: #aeb8cc;
   background-color: #aeb8cc;
+  color: #fff;
   cursor: not-allowed;
   transform: none;
+}
+
+.button__spinner {
+  width: 18px;
+  height: 18px;
+  margin-right: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: button-spin 0.7s linear infinite;
+}
+
+@keyframes button-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 

@@ -14,6 +14,17 @@ biblioteca privada con favoritos, Pokémon que no le gustan al usuario y notas.
 - Página principal y página «Sobre el autor».
 - Interfaz adaptable desde 320 px.
 
+## Funcionalidad actual
+
+- Carga inicial de 12 Pokémon y carga incremental sin perder los anteriores.
+- Búsqueda directa por nombre o número dentro de la Pokédex de Kanto.
+- Los 17 tipos presentes en Kanto están disponibles desde el primer bloque.
+- Cada filtro carga hasta 12 Pokémon propios y pagina sus resultados sin
+  depender de los Pokémon visibles en el catálogo general.
+- Orden por número o por nombre.
+- Estados accesibles de carga, error, validación y resultados vacíos.
+- Tarjetas reutilizables con imagen, número, nombre y tipos.
+
 ## Presentación de los datos
 
 Las tarjetas del catálogo mostrarán número, imagen, nombre y tipos. El detalle
@@ -62,6 +73,8 @@ modelos simplificados que consumirá React:
   estadísticas y textos localizados.
 - utils/pokeApi.ts centraliza solicitudes, validación, errores, cancelación y
   caché en memoria.
+- utils/kantoTypeIndex.ts relaciona cada tipo de Kanto con sus IDs para paginar
+  filtros usando exclusivamente solicitudes /pokemon/{id}.
 
 La información de especie prioriza contenido en español, utiliza inglés como
 respaldo y limpia los saltos y caracteres de control de las descripciones.
