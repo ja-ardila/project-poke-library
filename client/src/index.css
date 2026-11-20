@@ -10,6 +10,7 @@
 @import url('./blocks/catalog-controls.css');
 @import url('./blocks/pokemon-grid.css');
 @import url('./blocks/pokemon-card.css');
+@import url('./blocks/pokemon-details.css');
 @import url('./blocks/error-message.css');
 @import url('./blocks/empty-state.css');
 @import url('./blocks/footer.css');

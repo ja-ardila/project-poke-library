@@ -5,14 +5,24 @@ import {
 } from '../../utils/pokemonTypes';
 
 interface PokemonCardProps {
+  onSelect: (pokemon: Pokemon) => void;
   pokemon: Pokemon;
 }
 
-function PokemonCard({ pokemon }: PokemonCardProps): React.JSX.Element {
+function PokemonCard({
+  onSelect,
+  pokemon,
+}: PokemonCardProps): React.JSX.Element {
   const formattedId = String(pokemon.id).padStart(3, '0');
 
   return (
     <article className="pokemon-card">
+      <button
+        className="pokemon-card__action"
+        type="button"
+        aria-label={'Ver detalles de ' + pokemon.name}
+        onClick={() => onSelect(pokemon)}
+      />
       <div className="pokemon-card__image-wrapper">
         <span className="pokemon-card__number">#{formattedId}</span>
         <img

@@ -6,7 +6,7 @@ import {
   useState,
 } from 'react';
 
-import type { Pokemon } from '../../interfaces';
+import type { Pokemon, PokemonSpecies } from '../../interfaces';
 import {
   FIRST_POKEMON_ID,
   KANTO_POKEMON_LIMIT,
@@ -22,6 +22,7 @@ import pokeApi, { PokeApiError } from '../../utils/pokeApi';
 import { getPokemonTypeLabel } from '../../utils/pokemonTypes';
 import type { SortOption } from '../CatalogControls/CatalogControls';
 import Main from '../Main/Main';
+import PokemonDetails from '../PokemonDetails/PokemonDetails';
 
 async function fetchPokemonIds(
   identifiers: readonly number[],
@@ -79,6 +80,7 @@ function HomePage(): React.JSX.Element {
   const catalogRequestRef = useRef<AbortController | null>(null);
   const searchRequestRef = useRef<AbortController | null>(null);
   const typeRequestRef = useRef<AbortController | null>(null);
+  const detailsRequestRef = useRef<AbortController | null>(null);
   const [catalogPokemon, setCatalogPokemon] = useState<Pokemon[]>([]);
   const [nextPokemonId, setNextPokemonId] = useState(FIRST_POKEMON_ID);
   const [typePokemon, setTypePokemon] = useState<Pokemon[]>([]);
@@ -96,6 +98,13 @@ function HomePage(): React.JSX.Element {
   const [isSearching, setIsSearching] = useState(false);
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [selectedPokemon, setSelectedPokemon] = useState<Pokemon | null>(null);
+  const [selectedSpecies, setSelectedSpecies] =
+    useState<PokemonSpecies | null>(null);
+  const [isDetailsLoading, setIsDetailsLoading] = useState(false);
+  const [detailsErrorMessage, setDetailsErrorMessage] = useState<
+    string | null
+  >(null);
 
   const loadInitialCatalog = useCallback(async (): Promise<void> => {
     catalogRequestRef.current?.abort();
@@ -184,6 +193,7 @@ function HomePage(): React.JSX.Element {
       catalogRequestRef.current?.abort();
       searchRequestRef.current?.abort();
       typeRequestRef.current?.abort();
+      detailsRequestRef.current?.abort();
     };
   }, [loadInitialCatalog]);
 
@@ -335,13 +345,68 @@ function HomePage(): React.JSX.Element {
     setErrorMessage(null);
   }, []);
 
+  const loadPokemonSpecies = useCallback(
+    async (pokemon: Pokemon): Promise<void> => {
+      detailsRequestRef.current?.abort();
+      const controller = new AbortController();
+      detailsRequestRef.current = controller;
+
+      setSelectedSpecies(null);
+      setDetailsErrorMessage(null);
+      setIsDetailsLoading(true);
+
+      try {
+        const species = await pokeApi.getPokemonSpecies(
+          pokemon.id,
+          controller.signal,
+        );
+
+        if (detailsRequestRef.current === controller) {
+          setSelectedSpecies(species);
+        }
+      } catch (error) {
+        if (!isAbortError(error)) {
+          setDetailsErrorMessage(getRequestErrorMessage(error));
+        }
+      } finally {
+        if (detailsRequestRef.current === controller) {
+          setIsDetailsLoading(false);
+        }
+      }
+    },
+    [],
+  );
+
+  const handlePokemonSelect = useCallback(
+    (pokemon: Pokemon): void => {
+      setSelectedPokemon(pokemon);
+      void loadPokemonSpecies(pokemon);
+    },
+    [loadPokemonSpecies],
+  );
+
+  const handleCloseDetails = useCallback((): void => {
+    detailsRequestRef.current?.abort();
+    detailsRequestRef.current = null;
+    setSelectedPokemon(null);
+    setSelectedSpecies(null);
+    setDetailsErrorMessage(null);
+    setIsDetailsLoading(false);
+  }, []);
+
+  const handleRetryDetails = useCallback((): void => {
+    if (selectedPokemon) {
+      void loadPokemonSpecies(selectedPokemon);
+    }
+  }, [loadPokemonSpecies, selectedPokemon]);
+
   const availableTypes = useMemo(
     () =>
       [...KANTO_TYPES].sort((first, second) =>
-      getPokemonTypeLabel(first).localeCompare(
-        getPokemonTypeLabel(second),
-        'es',
-      ),
+        getPokemonTypeLabel(first).localeCompare(
+          getPokemonTypeLabel(second),
+          'es',
+        ),
       ),
     [],
   );
@@ -445,36 +510,48 @@ function HomePage(): React.JSX.Element {
   ]);
 
   return (
-    <Main
-      availableTypes={availableTypes}
-      canLoadMore={
-        !isSearchMode &&
-        (isKantoTypeName(selectedType)
-          ? nextTypeIndex < KANTO_TYPE_IDS[selectedType].length
-          : nextPokemonId <= KANTO_POKEMON_LIMIT)
-      }
-      catalogStatus={catalogStatus}
-      errorMessage={errorMessage}
-      isInitialLoading={
-        !isSearchMode &&
-        (isTypeLoading ||
-          (selectedType === 'all' && isInitialLoading))
-      }
-      isLoadingMore={isLoadingMore}
-      isSearching={isSearching}
-      isSearchMode={isSearchMode}
-      onClearFilters={() => handleTypeChange('all')}
-      onClearSearch={handleClearSearch}
-      onLoadMore={() => void handleLoadMore()}
-      onRetry={handleRetry}
-      onSearch={handleSearch}
-      onSortChange={setSortBy}
-      onTypeChange={handleTypeChange}
-      pokemon={visiblePokemon}
-      searchEmptyMessage={searchEmptyMessage}
-      selectedType={selectedType}
-      sortBy={sortBy}
-    />
+    <>
+      <Main
+        availableTypes={availableTypes}
+        canLoadMore={
+          !isSearchMode &&
+          (isKantoTypeName(selectedType)
+            ? nextTypeIndex < KANTO_TYPE_IDS[selectedType].length
+            : nextPokemonId <= KANTO_POKEMON_LIMIT)
+        }
+        catalogStatus={catalogStatus}
+        errorMessage={errorMessage}
+        isInitialLoading={
+          !isSearchMode &&
+          (isTypeLoading ||
+            (selectedType === 'all' && isInitialLoading))
+        }
+        isLoadingMore={isLoadingMore}
+        isSearching={isSearching}
+        isSearchMode={isSearchMode}
+        onClearFilters={() => handleTypeChange('all')}
+        onClearSearch={handleClearSearch}
+        onLoadMore={() => void handleLoadMore()}
+        onPokemonSelect={handlePokemonSelect}
+        onRetry={handleRetry}
+        onSearch={handleSearch}
+        onSortChange={setSortBy}
+        onTypeChange={handleTypeChange}
+        pokemon={visiblePokemon}
+        searchEmptyMessage={searchEmptyMessage}
+        selectedType={selectedType}
+        sortBy={sortBy}
+      />
+
+      <PokemonDetails
+        errorMessage={detailsErrorMessage}
+        isLoading={isDetailsLoading}
+        onClose={handleCloseDetails}
+        onRetry={handleRetryDetails}
+        pokemon={selectedPokemon}
+        species={selectedSpecies}
+      />
+    </>
   );
 }
 

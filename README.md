@@ -24,13 +24,17 @@ biblioteca privada con favoritos, Pokémon que no le gustan al usuario y notas.
 - Orden por número o por nombre.
 - Estados accesibles de carga, error, validación y resultados vacíos.
 - Tarjetas reutilizables con imagen, número, nombre y tipos.
+- Ficha de detalle accesible al seleccionar una tarjeta, con cierre por botón,
+  superposición o tecla Escape y restauración del foco.
+- Consulta diferida de la especie: `/pokemon-species/{id}` se solicita solo al
+  abrir el detalle y cuenta con carga, error y reintento propios.
 
 ## Presentación de los datos
 
-Las tarjetas del catálogo mostrarán número, imagen, nombre y tipos. El detalle
-modal ampliará esa información con altura, peso, habilidades, estadísticas,
-descripción, género, generación, hábitat y las clasificaciones legendario o
-mítico cuando correspondan.
+Las tarjetas del catálogo muestran número, imagen, nombre y tipos. El detalle
+modal amplía esa información con altura, peso, habilidades, seis estadísticas,
+descripción, género, generación, hábitat y las clasificaciones legendario,
+mítico o bebé cuando correspondan.
 
 ## Arquitectura
 

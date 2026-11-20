@@ -21,6 +21,7 @@ interface MainProps {
   onClearFilters: () => void;
   onClearSearch: () => void;
   onLoadMore: () => void;
+  onPokemonSelect: (pokemon: Pokemon) => void;
   onRetry: () => void;
   onSearch: (query: string) => Promise<void>;
   onSortChange: (sort: SortOption) => void;
@@ -43,6 +44,7 @@ function Main({
   onClearFilters,
   onClearSearch,
   onLoadMore,
+  onPokemonSelect,
   onRetry,
   onSearch,
   onSortChange,
@@ -132,7 +134,10 @@ function Main({
         )}
 
         {!isInitialLoading && pokemon.length > 0 && (
-          <PokemonGrid pokemon={pokemon} />
+          <PokemonGrid
+            onPokemonSelect={onPokemonSelect}
+            pokemon={pokemon}
+          />
         )}
 
         {canLoadMore && !isInitialLoading && !hasBlockingError && (
