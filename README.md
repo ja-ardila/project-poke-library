@@ -46,6 +46,9 @@ mítico o bebé cuando correspondan.
 El proyecto toma como referencia la separación de responsabilidades de
 web_project_around_full, sin modificar ese repositorio.
 
+La documentación de la API propia, sus rutas y las capturas de sus pruebas en
+Postman están disponibles en el [README del servidor](server/README.md#evidencias-visuales-en-postman).
+
 ## Comandos
 
 Instala las dependencias desde la raíz:
