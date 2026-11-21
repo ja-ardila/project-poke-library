@@ -119,9 +119,7 @@ function PokemonDetails({
     };
 
     fitName();
-
-    const resizeObserver = new ResizeObserver(fitName);
-    resizeObserver.observe(nameElement.parentElement ?? nameElement);
+    window.addEventListener('resize', fitName);
 
     void document.fonts.ready.then(() => {
       if (isActive) {
@@ -131,7 +129,7 @@ function PokemonDetails({
 
     return () => {
       isActive = false;
-      resizeObserver.disconnect();
+      window.removeEventListener('resize', fitName);
     };
   }, [displayName]);
 

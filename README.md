@@ -50,16 +50,16 @@ web_project_around_full, sin modificar ese repositorio.
 
 Instala las dependencias desde la raíz:
 
-    npm run install:all
+    npm install
 
 Inicia el cliente en http://localhost:3000:
 
-    npm run dev:client
+    npm run dev
 
 Comprueba la calidad y genera la compilación de producción:
 
-    npm run lint:client
-    npm run build:client
+    npm run lint
+    npm run build
 
 ## API de terceros
 

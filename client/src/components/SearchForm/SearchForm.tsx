@@ -76,6 +76,7 @@ function SearchForm({
           id="pokemon-search"
           name="pokemon"
           placeholder="Ej. Pikachu o 25"
+          required
           type="search"
           value={query}
           onChange={(event) => {
