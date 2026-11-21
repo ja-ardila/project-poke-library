@@ -1,0 +1,72 @@
+:root {
+  color: #17213c;
+  background-color: #f4f7fb;
+  font-family: "Inter", Arial, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  --color-primary: #2468e5;
+  --color-primary-dark: #184fb6;
+  --color-accent: #ffcb05;
+  --color-surface: #ffffff;
+  --color-background: #f4f7fb;
+  --color-text: #17213c;
+  --color-muted: #64708b;
+  --color-border: #dce3ef;
+  --shadow-card: 0 16px 40px rgba(36, 52, 84, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background-color: var(--color-background);
+}
+
+body {
+  min-height: 100vh;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible {
+  outline: 3px solid rgba(36, 104, 229, 0.35);
+  outline-offset: 3px;
+}
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(
+      circle at 85% 8%,
+      rgba(255, 203, 5, 0.16),
+      transparent 22rem
+    ),
+    var(--color-background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.page__section {
+  width: min(100% - 48px, 1180px);
+  margin-inline: auto;
+}
+
+@media screen and (max-width: 600px) {
+  .page__section {
+    width: min(100% - 32px, 1180px);
+  }
+}
+

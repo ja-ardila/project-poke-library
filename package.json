@@ -1,0 +1,16 @@
+{
+  "name": "project-poke-library",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "npm run dev --prefix client",
+    "build": "npm run build --prefix client",
+    "lint": "npm run lint --prefix client",
+    "postinstall": "npm install --prefix client",
+    "dev:client": "npm run dev --prefix client",
+    "build:client": "npm run build --prefix client",
+    "lint:client": "npm run lint --prefix client",
+    "install:all": "npm install --prefix client"
+  }
+}
+
