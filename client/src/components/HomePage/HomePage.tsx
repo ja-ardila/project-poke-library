@@ -1,12 +1,19 @@
 import {
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useRef,
   useState,
 } from 'react';
 
-import type { Pokemon, PokemonSpecies } from '../../interfaces';
+import CurrentUserContext from '../../contexts/CurrentUserContext';
+import type {
+  Pokemon,
+  PokemonPreference,
+  PokemonSpecies,
+  SavedPokemonEntry,
+} from '../../interfaces';
 import {
   FIRST_POKEMON_ID,
   KANTO_POKEMON_LIMIT,
@@ -19,10 +26,19 @@ import {
   isKantoTypeName,
 } from '../../utils/kantoTypeIndex';
 import pokeApi, { PokeApiError } from '../../utils/pokeApi';
+import { getApiErrorMessage } from '../../utils/http';
 import { getPokemonTypeLabel } from '../../utils/pokemonTypes';
 import type { SortOption } from '../CatalogControls/CatalogControls';
 import Main from '../Main/Main';
 import PokemonDetails from '../PokemonDetails/PokemonDetails';
+
+interface HomePageProps {
+  onSavePokemon: (
+    pokemon: Pokemon,
+    preference: PokemonPreference,
+  ) => Promise<void>;
+  savedPokemon: SavedPokemonEntry[];
+}
 
 async function fetchPokemonIds(
   identifiers: readonly number[],
@@ -76,7 +92,11 @@ function mergePokemon(
   );
 }
 
-function HomePage(): React.JSX.Element {
+function HomePage({
+  onSavePokemon,
+  savedPokemon,
+}: HomePageProps): React.JSX.Element {
+  const currentUser = useContext(CurrentUserContext);
   const catalogRequestRef = useRef<AbortController | null>(null);
   const searchRequestRef = useRef<AbortController | null>(null);
   const typeRequestRef = useRef<AbortController | null>(null);
@@ -105,6 +125,9 @@ function HomePage(): React.JSX.Element {
   const [detailsErrorMessage, setDetailsErrorMessage] = useState<
     string | null
   >(null);
+  const [saveErrorMessage, setSaveErrorMessage] = useState<string | null>(null);
+  const [savingPreference, setSavingPreference] =
+    useState<PokemonPreference | null>(null);
 
   const loadInitialCatalog = useCallback(async (): Promise<void> => {
     catalogRequestRef.current?.abort();
@@ -379,6 +402,7 @@ function HomePage(): React.JSX.Element {
 
   const handlePokemonSelect = useCallback(
     (pokemon: Pokemon): void => {
+      setSaveErrorMessage(null);
       setSelectedPokemon(pokemon);
       void loadPokemonSpecies(pokemon);
     },
@@ -391,6 +415,8 @@ function HomePage(): React.JSX.Element {
     setSelectedPokemon(null);
     setSelectedSpecies(null);
     setDetailsErrorMessage(null);
+    setSaveErrorMessage(null);
+    setSavingPreference(null);
     setIsDetailsLoading(false);
   }, []);
 
@@ -399,6 +425,41 @@ function HomePage(): React.JSX.Element {
       void loadPokemonSpecies(selectedPokemon);
     }
   }, [loadPokemonSpecies, selectedPokemon]);
+
+  const handleSavePreference = useCallback(
+    async (preference: PokemonPreference): Promise<void> => {
+      if (!selectedPokemon) {
+        return;
+      }
+
+      setSaveErrorMessage(null);
+      setSavingPreference(preference);
+
+      try {
+        await onSavePokemon(selectedPokemon, preference);
+      } catch (error) {
+        setSaveErrorMessage(
+          getApiErrorMessage(
+            error,
+            'No pudimos guardar tu preferencia. Inténtalo nuevamente.',
+          ),
+        );
+      } finally {
+        setSavingPreference(null);
+      }
+    },
+    [onSavePokemon, selectedPokemon],
+  );
+
+  const selectedSavedEntry = useMemo(
+    () =>
+      selectedPokemon
+        ? (savedPokemon.find(
+            (entry) => entry.pokemonId === selectedPokemon.id,
+          ) ?? null)
+        : null,
+    [savedPokemon, selectedPokemon],
+  );
 
   const availableTypes = useMemo(
     () =>
@@ -545,10 +606,15 @@ function HomePage(): React.JSX.Element {
 
       <PokemonDetails
         errorMessage={detailsErrorMessage}
+        isAuthenticated={Boolean(currentUser)}
         isLoading={isDetailsLoading}
         onClose={handleCloseDetails}
         onRetry={handleRetryDetails}
+        onSavePreference={handleSavePreference}
         pokemon={selectedPokemon}
+        savedPreference={selectedSavedEntry?.preference ?? null}
+        saveErrorMessage={saveErrorMessage}
+        savingPreference={savingPreference}
         species={selectedSpecies}
       />
     </>

@@ -1,20 +1,31 @@
 import { useLayoutEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 
-import type { Pokemon, PokemonSpecies } from '../../interfaces';
+import type {
+  Pokemon,
+  PokemonPreference,
+  PokemonSpecies,
+} from '../../interfaces';
 import {
   getPokemonTypeLabel,
   getPokemonTypeModifier,
 } from '../../utils/pokemonTypes';
 import ErrorMessage from '../ErrorMessage/ErrorMessage';
+import Button from '../Button/Button';
 import Popup from '../Popup/Popup';
 import Preloader from '../Preloader/Preloader';
 
 interface PokemonDetailsProps {
   errorMessage: string | null;
+  isAuthenticated: boolean;
   isLoading: boolean;
   onClose: () => void;
   onRetry: () => void;
+  onSavePreference: (preference: PokemonPreference) => Promise<void>;
   pokemon: Pokemon | null;
+  savedPreference: PokemonPreference | null;
+  saveErrorMessage: string | null;
+  savingPreference: PokemonPreference | null;
   species: PokemonSpecies | null;
 }
 
@@ -74,10 +85,15 @@ function getHabitatLabel(habitat: string | null): string {
 
 function PokemonDetails({
   errorMessage,
+  isAuthenticated,
   isLoading,
   onClose,
   onRetry,
+  onSavePreference,
   pokemon,
+  savedPreference,
+  saveErrorMessage,
+  savingPreference,
   species,
 }: PokemonDetailsProps): React.JSX.Element | null {
   const nameRef = useRef<HTMLHeadingElement>(null);
@@ -195,6 +211,70 @@ function PokemonDetails({
                 </li>
               ))}
             </ul>
+
+            <div className="pokemon-details__library">
+              {isAuthenticated ? (
+                <>
+                  <p className="pokemon-details__library-label">
+                    Guardar en mi biblioteca
+                  </p>
+                  <div className="pokemon-details__library-actions">
+                    <Button
+                      className={
+                        savedPreference === 'favorite'
+                          ? 'pokemon-details__library-button_active'
+                          : ''
+                      }
+                      disabled={savingPreference !== null}
+                      isLoading={savingPreference === 'favorite'}
+                      loadingLabel="Guardando"
+                      variant={
+                        savedPreference === 'favorite'
+                          ? 'primary'
+                          : 'secondary'
+                      }
+                      onClick={() => void onSavePreference('favorite')}
+                    >
+                      {savedPreference === 'favorite'
+                        ? 'En favoritos'
+                        : 'Favorito'}
+                    </Button>
+                    <Button
+                      className={
+                        savedPreference === 'disliked'
+                          ? 'pokemon-details__library-button_active'
+                          : ''
+                      }
+                      disabled={savingPreference !== null}
+                      isLoading={savingPreference === 'disliked'}
+                      loadingLabel="Guardando"
+                      variant={
+                        savedPreference === 'disliked'
+                          ? 'primary'
+                          : 'secondary'
+                      }
+                      onClick={() => void onSavePreference('disliked')}
+                    >
+                      {savedPreference === 'disliked'
+                        ? 'Marcado: no me gusta'
+                        : 'No me gusta'}
+                    </Button>
+                  </div>
+                  {saveErrorMessage && (
+                    <p className="pokemon-details__library-error" role="alert">
+                      {saveErrorMessage}
+                    </p>
+                  )}
+                </>
+              ) : (
+                <p className="pokemon-details__login-message">
+                  <Link to="/signin" onClick={onClose}>
+                    Inicia sesión
+                  </Link>{' '}
+                  para guardar tus preferencias y notas.
+                </p>
+              )}
+            </div>
 
             <dl className="pokemon-details__measurements">
               <div className="pokemon-details__measurement">

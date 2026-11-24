@@ -1,11 +1,11 @@
 # Poké Library
 
-Poké Library es una enciclopedia web de Pokémon construida con React,
-TypeScript y Vite. La primera etapa presenta una aplicación pública que
-consulta PokéAPI; una etapa posterior incorporará autenticación y una
-biblioteca privada con favoritos, Pokémon que no le gustan al usuario y notas.
+Poké Library es una enciclopedia full stack de Pokémon construida con React,
+TypeScript, Vite, Express y MongoDB. El catálogo público consulta PokéAPI y las
+cuentas autorizadas pueden organizar una biblioteca privada con preferencias y
+notas personales.
 
-## Alcance de la primera etapa
+## Catálogo público
 
 - Catálogo inicial de los Pokémon de Kanto, IDs 1 a 151.
 - Búsqueda por nombre o número.
@@ -13,6 +13,17 @@ biblioteca privada con favoritos, Pokémon que no le gustan al usuario y notas.
 - Información descriptiva obtenida de /pokemon-species/{id or name}.
 - Página principal y página «Sobre el autor».
 - Interfaz adaptable desde 320 px.
+
+## Autorización y biblioteca privada
+
+- Registro e inicio de sesión en las rutas `/signup` y `/signin`.
+- JWT almacenado en `localStorage` y restauración de la sesión al recargar.
+- Contexto global `currentUser` para compartir los datos de la persona.
+- Encabezado diferente para visitantes y usuarios autorizados.
+- Ruta protegida `/mypokemon`, con redirección al inicio de sesión.
+- Guardado de Pokémon como favoritos o como «No me gusta» desde su detalle.
+- Dos listas privadas, cambio de preferencia y notas editables en un popup.
+- Eliminación con confirmación desde la biblioteca privada.
 
 ## Funcionalidad actual
 
@@ -40,7 +51,7 @@ mítico o bebé cuando correspondan.
 
     project-poke-library/
     ├── client/   # React, TypeScript, Vite, React Router y estilos BEM
-    ├── server/   # Reservado para la API propia de la etapa full stack
+    ├── server/   # Express, TypeScript, MongoDB, JWT y API REST propia
     └── package.json
 
 El proyecto toma como referencia la separación de responsabilidades de
@@ -55,14 +66,26 @@ Instala las dependencias desde la raíz:
 
     npm install
 
-Inicia el cliente en http://localhost:3000:
+Configura las variables de cada aplicación a partir de `client/.env.example` y
+`server/.env.example`. Después, inicia la API en una terminal:
 
+    cd server
+    npm install
+    npm run dev
+
+Inicia el cliente en http://localhost:3000 desde otra terminal:
+
+    cd client
+    npm install
     npm run dev
 
 Comprueba la calidad y genera la compilación de producción:
 
     npm run lint
     npm run build
+
+Por defecto, el cliente usa `http://localhost:3001` como API propia. La
+variable `VITE_API_URL` permite cambiar ese origen sin modificar el código.
 
 ## API de terceros
 
