@@ -16,6 +16,12 @@ import {
   registerLimiter,
 } from "./middleware/limiter.js";
 import router from "./routes/index.js";
+import {
+  ERROR_MESSAGES,
+  HEALTH_STATUS,
+  HTTP_STATUS,
+  REQUEST_BODY_LIMIT,
+} from "./utils/constants.js";
 import { connectDatabase } from "./utils/database.js";
 import { HttpError } from "./utils/errors.js";
 
@@ -31,9 +37,7 @@ if (
   !Number.isInteger(port) ||
   port <= 0
 ) {
-  throw new Error(
-    "JWT_SECRET, MONGO_URI, PORT y CLIENT_ORIGIN deben estar configuradas",
-  );
+  throw new Error(ERROR_MESSAGES.ENV_REQUIRED);
 }
 
 const allowedOrigins = new Set(
@@ -50,7 +54,9 @@ const corsOptions: CorsOptions = {
       return;
     }
 
-    callback(new HttpError(403, "El origen de la solicitud no está permitido"));
+    callback(
+      new HttpError(HTTP_STATUS.FORBIDDEN, ERROR_MESSAGES.CORS_FORBIDDEN),
+    );
   },
 };
 
@@ -71,11 +77,11 @@ app.set("trust proxy", 1);
 
 app.use(cors(corsOptions));
 app.use(apiLimiter);
-app.use(express.json({ limit: "20kb" }));
-app.use(express.urlencoded({ extended: true, limit: "20kb" }));
+app.use(express.json({ limit: REQUEST_BODY_LIMIT }));
+app.use(express.urlencoded({ extended: true, limit: REQUEST_BODY_LIMIT }));
 
 app.get("/health", (_req, res) => {
-  res.status(200).json({ status: "ok" });
+  res.status(HTTP_STATUS.OK).json({ status: HEALTH_STATUS });
 });
 
 app.post("/signup", registerLimiter, requireDatabase, createUser);

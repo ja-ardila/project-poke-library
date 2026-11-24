@@ -1,5 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 
+import { ERROR_MESSAGES, HTTP_STATUS } from "../utils/constants.js";
+
 type ApiError = Error & {
   code?: number;
   keyPattern?: Record<string, number>;
@@ -12,24 +14,24 @@ const errorHandler = (
   res: Response,
   _next: NextFunction,
 ): void => {
-  let statusCode = err.statusCode ?? 500;
+  let statusCode = err.statusCode ?? HTTP_STATUS.INTERNAL_SERVER_ERROR;
   let message = err.message;
 
   if (err.name === "ValidationError" || err.name === "CastError") {
-    statusCode = 400;
-    message = "Los datos enviados no son válidos";
+    statusCode = HTTP_STATUS.BAD_REQUEST;
+    message = ERROR_MESSAGES.INVALID_USER_DATA;
   }
 
   if (err.code === 11000) {
-    statusCode = 409;
+    statusCode = HTTP_STATUS.CONFLICT;
     message = err.keyPattern?.email
-      ? "El correo electrónico ya está en uso"
-      : "Este Pokémon ya está guardado en tu biblioteca";
+      ? ERROR_MESSAGES.DUPLICATE_EMAIL
+      : ERROR_MESSAGES.DUPLICATE_POKEMON;
   }
 
-  if (statusCode === 500) {
+  if (statusCode === HTTP_STATUS.INTERNAL_SERVER_ERROR) {
     console.error(err);
-    message = "Ha ocurrido un error en el servidor";
+    message = ERROR_MESSAGES.INTERNAL_SERVER;
   }
 
   res.status(statusCode).send({ message });

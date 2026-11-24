@@ -1,5 +1,9 @@
 import mongoose from "mongoose";
 
+import {
+  ERROR_MESSAGES,
+  POKEMON_LIMITS,
+} from "../utils/constants.js";
 import { URL_REGEX } from "../utils/validation.js";
 
 const POKEMON_PREFERENCES = ["favorite", "disliked"] as const;
@@ -22,30 +26,32 @@ const pokemonEntrySchema = new mongoose.Schema<IPokemonEntry>(
     pokemonId: {
       type: Number,
       required: true,
-      min: 1,
+      min: POKEMON_LIMITS.ID_MIN_VALUE,
       validate: {
         validator: Number.isInteger,
-        message: "El identificador del Pokémon debe ser un número entero",
+        message: ERROR_MESSAGES.INVALID_POKEMON_ID,
       },
     },
     pokemonName: {
       type: String,
       required: true,
       trim: true,
-      minlength: 1,
-      maxlength: 50,
+      minlength: POKEMON_LIMITS.NAME_MIN_LENGTH,
+      maxlength: POKEMON_LIMITS.NAME_MAX_LENGTH,
     },
     imageUrl: {
       type: String,
       required: true,
-      match: [URL_REGEX, "La imagen debe ser una URL válida"],
+      match: [URL_REGEX, ERROR_MESSAGES.INVALID_IMAGE_URL],
     },
     types: {
       type: [String],
       required: true,
       validate: {
-        validator: (types: string[]) => types.length >= 1 && types.length <= 2,
-        message: "El Pokémon debe tener uno o dos tipos",
+        validator: (types: string[]) =>
+          types.length >= POKEMON_LIMITS.TYPES_MIN_LENGTH &&
+          types.length <= POKEMON_LIMITS.TYPES_MAX_LENGTH,
+        message: ERROR_MESSAGES.INVALID_POKEMON_TYPES,
       },
     },
     preference: {
@@ -56,7 +62,7 @@ const pokemonEntrySchema = new mongoose.Schema<IPokemonEntry>(
     note: {
       type: String,
       trim: true,
-      maxlength: 1000,
+      maxlength: POKEMON_LIMITS.NOTE_MAX_LENGTH,
       default: "",
     },
     owner: {

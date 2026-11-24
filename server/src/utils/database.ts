@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 
+import { DATABASE_CONFIG } from "./constants.js";
+
 let pendingConnection: Promise<typeof mongoose> | null = null;
 
 const connectDatabase = async (
@@ -12,10 +14,11 @@ const connectDatabase = async (
   if (!pendingConnection) {
     pendingConnection = mongoose
       .connect(mongoUri, {
-        maxPoolSize: 10,
+        maxPoolSize: DATABASE_CONFIG.MAX_POOL_SIZE,
         family: 4,
-        connectTimeoutMS: 8000,
-        serverSelectionTimeoutMS: 8000,
+        connectTimeoutMS: DATABASE_CONFIG.CONNECT_TIMEOUT_MS,
+        serverSelectionTimeoutMS:
+          DATABASE_CONFIG.SERVER_SELECTION_TIMEOUT_MS,
       })
       .then((connection) => {
         process.stdout.write("Conectado a MongoDB\n");

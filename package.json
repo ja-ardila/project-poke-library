@@ -3,14 +3,21 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
-    "dev": "npm run dev --prefix client",
-    "build": "npm run build --prefix client",
-    "lint": "npm run lint --prefix client",
-    "postinstall": "npm install --prefix client",
+    "dev": "concurrently --kill-others-on-fail --names client,server --prefix-colors blue,magenta \"npm run dev:client\" \"npm run dev:server\"",
+    "build": "npm run build:client && npm run build:server",
+    "lint": "npm run lint:client && npm run lint:server",
+    "postinstall": "npm run install:all",
     "dev:client": "npm run dev --prefix client",
+    "dev:server": "npm run dev --prefix server",
     "build:client": "npm run build --prefix client",
+    "build:server": "npm run build --prefix server",
     "lint:client": "npm run lint --prefix client",
-    "install:all": "npm install --prefix client"
+    "lint:server": "npm run lint --prefix server",
+    "start:server": "npm run start --prefix server",
+    "install:all": "npm install --prefix client && npm install --prefix server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
   }
 }
 

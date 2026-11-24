@@ -8,6 +8,11 @@ import type {
   IPokemonEntry,
   PokemonPreference,
 } from "../models/pokemon-entry.js";
+import {
+  ERROR_MESSAGES,
+  HTTP_STATUS,
+  POKEMON_LIMITS,
+} from "../utils/constants.js";
 import { HttpError } from "../utils/errors.js";
 
 type PokemonEntryDocument = HydratedDocument<IPokemonEntry>;
@@ -16,7 +21,7 @@ const getCurrentUserId = (req: Request): string => {
   const userId = req.user?._id;
 
   if (!userId) {
-    throw new HttpError(401, "Se requiere autorización");
+    throw new HttpError(HTTP_STATUS.UNAUTHORIZED, ERROR_MESSAGES.AUTH_REQUIRED);
   }
 
   return userId;
@@ -44,8 +49,8 @@ const checkEntryOwner = (
 ): void => {
   if (entry.owner.toString() !== userId) {
     throw new HttpError(
-      403,
-      "No tienes permiso para modificar este Pokémon guardado",
+      HTTP_STATUS.FORBIDDEN,
+      ERROR_MESSAGES.FORBIDDEN_POKEMON,
     );
   }
 };
@@ -59,15 +64,15 @@ const getPokemonEntries = async (
 
   if (preference !== undefined && !isPokemonPreference(preference)) {
     throw new HttpError(
-      400,
-      "La preferencia debe ser favorite o disliked",
+      HTTP_STATUS.BAD_REQUEST,
+      ERROR_MESSAGES.INVALID_PREFERENCE,
     );
   }
 
   const filter = preference ? { owner, preference } : { owner };
   const entries = await PokemonEntry.find(filter).sort({ updatedAt: -1 });
 
-  res.status(200).json(entries.map(getSafePokemonData));
+  res.status(HTTP_STATUS.OK).json(entries.map(getSafePokemonData));
 };
 
 const createPokemonEntry = async (
@@ -80,19 +85,22 @@ const createPokemonEntry = async (
   if (
     !Number.isInteger(pokemonId) ||
     typeof pokemonId !== "number" ||
-    pokemonId < 1 ||
+    pokemonId < POKEMON_LIMITS.ID_MIN_VALUE ||
     typeof pokemonName !== "string" ||
     !pokemonName.trim() ||
     typeof imageUrl !== "string" ||
     !imageUrl.trim() ||
     !Array.isArray(types) ||
-    types.length < 1 ||
-    types.length > 2 ||
+    types.length < POKEMON_LIMITS.TYPES_MIN_LENGTH ||
+    types.length > POKEMON_LIMITS.TYPES_MAX_LENGTH ||
     !types.every((type) => typeof type === "string" && type.trim()) ||
     !isPokemonPreference(preference) ||
     (note !== undefined && typeof note !== "string")
   ) {
-    throw new HttpError(400, "Los datos del Pokémon guardado no son válidos");
+    throw new HttpError(
+      HTTP_STATUS.BAD_REQUEST,
+      ERROR_MESSAGES.INVALID_POKEMON_DATA,
+    );
   }
 
   const entry = await PokemonEntry.create({
@@ -105,7 +113,7 @@ const createPokemonEntry = async (
     owner: getCurrentUserId(req),
   });
 
-  res.status(201).json(getSafePokemonData(entry));
+  res.status(HTTP_STATUS.CREATED).json(getSafePokemonData(entry));
 };
 
 const updatePokemonEntry = async (
@@ -117,25 +125,31 @@ const updatePokemonEntry = async (
   const hasNote = Object.hasOwn(body, "note");
 
   if (!hasPreference && !hasNote) {
-    throw new HttpError(400, "Envía una preferencia o una nota para actualizar");
+    throw new HttpError(
+      HTTP_STATUS.BAD_REQUEST,
+      ERROR_MESSAGES.UPDATE_REQUIRED,
+    );
   }
 
   if (hasPreference && !isPokemonPreference(body.preference)) {
     throw new HttpError(
-      400,
-      "La preferencia debe ser favorite o disliked",
+      HTTP_STATUS.BAD_REQUEST,
+      ERROR_MESSAGES.INVALID_PREFERENCE,
     );
   }
 
   if (hasNote && typeof body.note !== "string") {
-    throw new HttpError(400, "La nota debe ser texto");
+    throw new HttpError(HTTP_STATUS.BAD_REQUEST, ERROR_MESSAGES.INVALID_NOTE);
   }
 
   const userId = getCurrentUserId(req);
   const entry = await PokemonEntry.findById(req.params.id);
 
   if (!entry) {
-    throw new HttpError(404, "Pokémon guardado no encontrado");
+    throw new HttpError(
+      HTTP_STATUS.NOT_FOUND,
+      ERROR_MESSAGES.POKEMON_NOT_FOUND,
+    );
   }
 
   checkEntryOwner(entry, userId);
@@ -149,7 +163,7 @@ const updatePokemonEntry = async (
   }
 
   await entry.save();
-  res.status(200).json(getSafePokemonData(entry));
+  res.status(HTTP_STATUS.OK).json(getSafePokemonData(entry));
 };
 
 const deletePokemonEntry = async (
@@ -160,13 +174,16 @@ const deletePokemonEntry = async (
   const entry = await PokemonEntry.findById(req.params.id);
 
   if (!entry) {
-    throw new HttpError(404, "Pokémon guardado no encontrado");
+    throw new HttpError(
+      HTTP_STATUS.NOT_FOUND,
+      ERROR_MESSAGES.POKEMON_NOT_FOUND,
+    );
   }
 
   checkEntryOwner(entry, userId);
   await entry.deleteOne();
 
-  res.status(200).json(getSafePokemonData(entry));
+  res.status(HTTP_STATUS.OK).json(getSafePokemonData(entry));
 };
 
 export {

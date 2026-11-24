@@ -3,6 +3,13 @@ import type { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
 import User from "../models/user.js";
+import {
+  BCRYPT_SALT_ROUNDS,
+  ERROR_MESSAGES,
+  HTTP_STATUS,
+  JWT_EXPIRES_IN,
+  USER_LIMITS,
+} from "../utils/constants.js";
 import { HttpError } from "../utils/errors.js";
 import { EMAIL_REGEX } from "../utils/validation.js";
 
@@ -22,7 +29,7 @@ const getCurrentUserId = (req: Request): string => {
   const userId = req.user?._id;
 
   if (!userId) {
-    throw new HttpError(401, "Se requiere autorización");
+    throw new HttpError(HTTP_STATUS.UNAUTHORIZED, ERROR_MESSAGES.AUTH_REQUIRED);
   }
 
   return userId;
@@ -32,10 +39,10 @@ const getCurrentUser = async (req: Request, res: Response): Promise<void> => {
   const user = await User.findById(getCurrentUserId(req));
 
   if (!user) {
-    throw new HttpError(404, "Usuario no encontrado");
+    throw new HttpError(HTTP_STATUS.NOT_FOUND, ERROR_MESSAGES.USER_NOT_FOUND);
   }
 
-  res.status(200).json(getSafeUserData(user));
+  res.status(HTTP_STATUS.OK).json(getSafeUserData(user));
 };
 
 const createUser = async (req: Request, res: Response): Promise<void> => {
@@ -50,34 +57,43 @@ const createUser = async (req: Request, res: Response): Promise<void> => {
     !name.trim()
   ) {
     throw new HttpError(
-      400,
-      "El correo electrónico, la contraseña y el nombre son obligatorios",
+      HTTP_STATUS.BAD_REQUEST,
+      ERROR_MESSAGES.USER_FIELDS_REQUIRED,
     );
   }
 
   if (!EMAIL_REGEX.test(email.trim())) {
-    throw new HttpError(400, "El correo electrónico no es válido");
+    throw new HttpError(HTTP_STATUS.BAD_REQUEST, ERROR_MESSAGES.INVALID_EMAIL);
   }
 
-  if (password.length < 8 || password.length > 72) {
+  if (
+    password.length < USER_LIMITS.PASSWORD_MIN_LENGTH ||
+    password.length > USER_LIMITS.PASSWORD_MAX_LENGTH
+  ) {
     throw new HttpError(
-      400,
-      "La contraseña debe tener entre 8 y 72 caracteres",
+      HTTP_STATUS.BAD_REQUEST,
+      ERROR_MESSAGES.INVALID_PASSWORD_LENGTH,
     );
   }
 
-  if (name.trim().length < 2 || name.trim().length > 30) {
-    throw new HttpError(400, "El nombre debe tener entre 2 y 30 caracteres");
+  if (
+    name.trim().length < USER_LIMITS.NAME_MIN_LENGTH ||
+    name.trim().length > USER_LIMITS.NAME_MAX_LENGTH
+  ) {
+    throw new HttpError(
+      HTTP_STATUS.BAD_REQUEST,
+      ERROR_MESSAGES.INVALID_NAME_LENGTH,
+    );
   }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const hashedPassword = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
   const user = await User.create({
     email: email.trim().toLowerCase(),
     password: hashedPassword,
     name: name.trim(),
   });
 
-  res.status(201).json(getSafeUserData(user));
+  res.status(HTTP_STATUS.CREATED).json(getSafeUserData(user));
 };
 
 const login = async (req: Request, res: Response): Promise<void> => {
@@ -90,8 +106,8 @@ const login = async (req: Request, res: Response): Promise<void> => {
     !password
   ) {
     throw new HttpError(
-      400,
-      "El correo electrónico y la contraseña son obligatorios",
+      HTTP_STATUS.BAD_REQUEST,
+      ERROR_MESSAGES.LOGIN_FIELDS_REQUIRED,
     );
   }
 
@@ -100,22 +116,28 @@ const login = async (req: Request, res: Response): Promise<void> => {
   }).select("+password");
 
   if (!user) {
-    throw new HttpError(401, "Correo o contraseña incorrectos");
+    throw new HttpError(
+      HTTP_STATUS.UNAUTHORIZED,
+      ERROR_MESSAGES.LOGIN_UNAUTHORIZED,
+    );
   }
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
 
   if (!isPasswordValid) {
-    throw new HttpError(401, "Correo o contraseña incorrectos");
+    throw new HttpError(
+      HTTP_STATUS.UNAUTHORIZED,
+      ERROR_MESSAGES.LOGIN_UNAUTHORIZED,
+    );
   }
 
   const token = jwt.sign(
     { _id: user._id.toString() },
     process.env.JWT_SECRET!,
-    { expiresIn: "7d" },
+    { expiresIn: JWT_EXPIRES_IN },
   );
 
-  res.status(200).json({
+  res.status(HTTP_STATUS.OK).json({
     token,
     user: getSafeUserData(user),
   });

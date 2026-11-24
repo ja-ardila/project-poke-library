@@ -62,30 +62,33 @@ Postman están disponibles en el [README del servidor](server/README.md#evidenci
 
 ## Comandos
 
-Instala las dependencias desde la raíz:
+Configura las variables de entorno a partir de los archivos de ejemplo:
+
+    cp client/.env.example client/.env
+    cp server/.env.example server/.env
+
+Instala las dependencias del proyecto. El comando raíz instala también las de
+`client` y `server`:
 
     npm install
 
-Configura las variables de cada aplicación a partir de `client/.env.example` y
-`server/.env.example`. Después, inicia la API en una terminal:
+Inicia el cliente y el servidor a la vez:
 
-    cd server
-    npm install
     npm run dev
 
-Inicia el cliente en http://localhost:3000 desde otra terminal:
+También puedes iniciarlos por separado:
 
-    cd client
-    npm install
-    npm run dev
+    npm run dev:client
+    npm run dev:server
 
-Comprueba la calidad y genera la compilación de producción:
+Comprueba ambas aplicaciones y genera sus compilaciones de producción:
 
     npm run lint
     npm run build
 
-Por defecto, el cliente usa `http://localhost:3001` como API propia. La
-variable `VITE_API_URL` permite cambiar ese origen sin modificar el código.
+El cliente exige `VITE_API_URL` para conectarse con la API propia. En local se
+configura con `http://localhost:3001`; en producción deberá contener la URL
+pública del servidor desplegado.
 
 ## API de terceros
 

@@ -272,6 +272,10 @@ function App(): React.JSX.Element {
         setSavedPokemon((entries) =>
           entries.filter((entry) => entry._id !== entryId),
         );
+        setInfoTooltip({
+          message: 'El Pokémon fue eliminado de tu biblioteca.',
+          type: 'success',
+        });
       } catch (error) {
         if (error instanceof ApiError && error.status === 401) {
           expireSession();

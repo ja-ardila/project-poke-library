@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+import { ERROR_MESSAGES, USER_LIMITS } from "../utils/constants.js";
 import { EMAIL_REGEX } from "../utils/validation.js";
 
 interface IUser {
@@ -16,7 +17,7 @@ const userSchema = new mongoose.Schema<IUser>(
       unique: true,
       trim: true,
       lowercase: true,
-      match: [EMAIL_REGEX, "El correo electrónico no es válido"],
+      match: [EMAIL_REGEX, ERROR_MESSAGES.INVALID_EMAIL],
     },
     password: {
       type: String,
@@ -27,8 +28,8 @@ const userSchema = new mongoose.Schema<IUser>(
       type: String,
       required: true,
       trim: true,
-      minlength: 2,
-      maxlength: 30,
+      minlength: USER_LIMITS.NAME_MIN_LENGTH,
+      maxlength: USER_LIMITS.NAME_MAX_LENGTH,
     },
   },
   { timestamps: true },

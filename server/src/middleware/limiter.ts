@@ -1,34 +1,37 @@
 import { rateLimit } from "express-rate-limit";
 
+import {
+  ERROR_MESSAGES,
+  RATE_LIMIT_CONFIG,
+} from "../utils/constants.js";
+
 const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 300,
+  windowMs: RATE_LIMIT_CONFIG.API.WINDOW_MS,
+  limit: RATE_LIMIT_CONFIG.API.LIMIT,
   standardHeaders: "draft-8",
   legacyHeaders: false,
   message: {
-    message: "Demasiadas solicitudes. Inténtalo de nuevo más tarde.",
+    message: ERROR_MESSAGES.API_RATE_LIMIT,
   },
 });
 
 const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 10,
+  windowMs: RATE_LIMIT_CONFIG.LOGIN.WINDOW_MS,
+  limit: RATE_LIMIT_CONFIG.LOGIN.LIMIT,
   standardHeaders: "draft-8",
   legacyHeaders: false,
   message: {
-    message:
-      "Demasiados intentos de inicio de sesión. Inténtalo de nuevo más tarde.",
+    message: ERROR_MESSAGES.LOGIN_RATE_LIMIT,
   },
 });
 
 const registerLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000,
-  limit: 20,
+  windowMs: RATE_LIMIT_CONFIG.REGISTER.WINDOW_MS,
+  limit: RATE_LIMIT_CONFIG.REGISTER.LIMIT,
   standardHeaders: "draft-8",
   legacyHeaders: false,
   message: {
-    message:
-      "Demasiados registros desde esta dirección. Inténtalo de nuevo más tarde.",
+    message: ERROR_MESSAGES.REGISTER_RATE_LIMIT,
   },
 });
 
