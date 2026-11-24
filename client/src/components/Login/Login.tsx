@@ -1,43 +1,35 @@
-import { useState } from 'react';
-import type { FormEvent } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useState, type FormEvent } from 'react';
+import { Link } from 'react-router-dom';
 
 import type { LoginCredentials } from '../../interfaces';
-import { getApiErrorMessage } from '../../utils/http';
+import useFormValidation from '../../hooks/useFormValidation';
+import { getAuthInputError } from '../../utils/validation';
 import Button from '../Button/Button';
 
 interface LoginProps {
   onLogin: (credentials: LoginCredentials) => Promise<void>;
 }
 
-interface LoginLocationState {
-  from?: string;
-  registrationSuccess?: boolean;
-  sessionExpired?: boolean;
-}
-
 function Login({ onLogin }: LoginProps): React.JSX.Element {
-  const location = useLocation();
-  const locationState = location.state as LoginLocationState | null;
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [credentials, setCredentials] = useState<LoginCredentials>({
+    email: '',
+    password: '',
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { errors, isValid, validateInput, validateForm } =
+    useFormValidation(false, getAuthInputError);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
-    setErrorMessage(null);
+
+    if (!validateForm(event.currentTarget) || isSubmitting) {
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      await onLogin({ email, password });
-    } catch (error) {
-      setErrorMessage(
-        getApiErrorMessage(
-          error,
-          'No pudimos iniciar sesión. Inténtalo nuevamente.',
-        ),
-      );
+      await onLogin(credentials);
     } finally {
       setIsSubmitting(false);
     }
@@ -54,63 +46,85 @@ function Login({ onLogin }: LoginProps): React.JSX.Element {
           Accede a tus favoritos, Pokémon que no te gustan y notas personales.
         </p>
 
-        {locationState?.registrationSuccess && (
-          <p className="auth-card__status auth-card__status_success" role="status">
-            Tu cuenta fue creada correctamente. Ya puedes iniciar sesión.
-          </p>
-        )}
-
-        {locationState?.sessionExpired && (
-          <p className="auth-card__status" role="alert">
-            Tu sesión expiró. Inicia sesión nuevamente.
-          </p>
-        )}
-
-        {locationState?.from && !locationState.sessionExpired && (
-          <p className="auth-card__status" role="status">
-            Inicia sesión para acceder a tu biblioteca.
-          </p>
-        )}
-
-        <form className="auth-form" onSubmit={handleSubmit}>
+        <form
+          aria-busy={isSubmitting}
+          className="auth-form"
+          noValidate
+          onSubmit={handleSubmit}
+        >
           <label className="auth-form__field">
             <span className="auth-form__label">Correo electrónico</span>
             <input
-              className="auth-form__input"
-              type="email"
-              name="email"
+              aria-describedby="login-email-input-error"
+              aria-invalid={Boolean(errors.email)}
               autoComplete="email"
+              className={`auth-form__input ${
+                errors.email ? 'auth-form__input_type_error' : ''
+              }`}
+              id="login-email-input"
+              name="email"
               placeholder="nombre@correo.com"
               required
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              type="email"
+              value={credentials.email}
+              onBlur={(event) => validateInput(event.currentTarget)}
+              onChange={(event) => {
+                setCredentials((currentCredentials) => ({
+                  ...currentCredentials,
+                  email: event.target.value,
+                }));
+                validateInput(event.currentTarget);
+              }}
             />
+            <span
+              className={`auth-form__input-error ${
+                errors.email ? 'auth-form__input-error_active' : ''
+              }`}
+              id="login-email-input-error"
+            >
+              {errors.email}
+            </span>
           </label>
 
           <label className="auth-form__field">
             <span className="auth-form__label">Contraseña</span>
             <input
-              className="auth-form__input"
-              type="password"
-              name="password"
+              aria-describedby="login-password-input-error"
+              aria-invalid={Boolean(errors.password)}
               autoComplete="current-password"
-              placeholder="Tu contraseña"
-              minLength={8}
+              className={`auth-form__input ${
+                errors.password ? 'auth-form__input_type_error' : ''
+              }`}
+              id="login-password-input"
               maxLength={72}
+              minLength={8}
+              name="password"
+              placeholder="Tu contraseña"
               required
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              type="password"
+              value={credentials.password}
+              onBlur={(event) => validateInput(event.currentTarget)}
+              onChange={(event) => {
+                setCredentials((currentCredentials) => ({
+                  ...currentCredentials,
+                  password: event.target.value,
+                }));
+                validateInput(event.currentTarget);
+              }}
             />
+            <span
+              className={`auth-form__input-error ${
+                errors.password ? 'auth-form__input-error_active' : ''
+              }`}
+              id="login-password-input-error"
+            >
+              {errors.password}
+            </span>
           </label>
-
-          {errorMessage && (
-            <p className="auth-form__error" role="alert">
-              {errorMessage}
-            </p>
-          )}
 
           <Button
             className="auth-form__submit"
+            disabled={!isValid || isSubmitting}
             isLoading={isSubmitting}
             loadingLabel="Iniciando sesión"
             type="submit"

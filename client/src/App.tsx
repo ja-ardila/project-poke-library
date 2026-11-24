@@ -4,6 +4,7 @@ import { Route, Routes, useNavigate } from 'react-router-dom';
 import About from './components/About/About';
 import AppLayout from './components/AppLayout/AppLayout';
 import HomePage from './components/HomePage/HomePage';
+import InfoTooltip from './components/InfoTooltip/InfoTooltip';
 import Login from './components/Login/Login';
 import MyPokemon from './components/MyPokemon/MyPokemon';
 import NotFound from './components/NotFound/NotFound';
@@ -35,6 +36,11 @@ function isAbortError(error: unknown): boolean {
   return error instanceof Error && error.name === 'AbortError';
 }
 
+interface InfoTooltipState {
+  message: string;
+  type: 'error' | 'success';
+}
+
 function App(): React.JSX.Element {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
@@ -46,6 +52,8 @@ function App(): React.JSX.Element {
   const [libraryErrorMessage, setLibraryErrorMessage] = useState<string | null>(
     null,
   );
+  const [infoTooltip, setInfoTooltip] =
+    useState<InfoTooltipState | null>(null);
 
   const clearSession = useCallback((): void => {
     localStorage.removeItem(AUTH_TOKEN_KEY);
@@ -57,9 +65,12 @@ function App(): React.JSX.Element {
 
   const expireSession = useCallback((): void => {
     clearSession();
+    setInfoTooltip({
+      message: 'Tu sesión expiró. Inicia sesión nuevamente.',
+      type: 'error',
+    });
     navigate('/signin', {
       replace: true,
-      state: { sessionExpired: true },
     });
   }, [clearSession, navigate]);
 
@@ -120,6 +131,10 @@ function App(): React.JSX.Element {
           (error.status === 401 || error.status === 404)
         ) {
           clearSession();
+          setInfoTooltip({
+            message: 'Tu sesión ya no es válida. Inicia sesión nuevamente.',
+            type: 'error',
+          });
         }
       } finally {
         if (!controller.signal.aborted) {
@@ -135,26 +150,48 @@ function App(): React.JSX.Element {
 
   const handleRegister = useCallback(
     async (data: RegisterData): Promise<void> => {
-      await signUp(data);
-      navigate('/signin', {
-        replace: true,
-        state: { registrationSuccess: true },
-      });
+      try {
+        await signUp(data);
+        setInfoTooltip({
+          message: '¡Correcto! Tu cuenta fue creada. Ya puedes iniciar sesión.',
+          type: 'success',
+        });
+        navigate('/signin', { replace: true });
+      } catch (error) {
+        setInfoTooltip({
+          message: getApiErrorMessage(
+            error,
+            'No pudimos crear tu cuenta. Inténtalo nuevamente.',
+          ),
+          type: 'error',
+        });
+      }
     },
     [navigate],
   );
 
   const handleLogin = useCallback(
     async (credentials: LoginCredentials): Promise<void> => {
-      const authResponse = await signIn(credentials);
+      try {
+        const authResponse = await signIn(credentials);
 
-      localStorage.setItem(AUTH_TOKEN_KEY, authResponse.token);
-      setCurrentUser(authResponse.user);
-      setIsCheckingAuth(false);
-      await loadLibrary();
-      navigate('/', { replace: true });
+        localStorage.setItem(AUTH_TOKEN_KEY, authResponse.token);
+        setCurrentUser(authResponse.user);
+        setIsCheckingAuth(false);
+        await loadLibrary();
+        navigate('/', { replace: true });
+      } catch (error) {
+        clearSession();
+        setInfoTooltip({
+          message: getApiErrorMessage(
+            error,
+            'No pudimos iniciar sesión. Inténtalo nuevamente.',
+          ),
+          type: 'error',
+        });
+      }
     },
-    [loadLibrary, navigate],
+    [clearSession, loadLibrary, navigate],
   );
 
   const handleLogout = useCallback((): void => {
@@ -301,6 +338,12 @@ function App(): React.JSX.Element {
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
+      <InfoTooltip
+        isOpen={infoTooltip !== null}
+        message={infoTooltip?.message ?? ''}
+        type={infoTooltip?.type ?? 'error'}
+        onClose={() => setInfoTooltip(null)}
+      />
     </CurrentUserContext.Provider>
   );
 }

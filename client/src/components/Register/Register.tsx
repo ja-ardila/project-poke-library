@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import type { FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 
+import useFormValidation from '../../hooks/useFormValidation';
 import type { RegisterData } from '../../interfaces';
-import { getApiErrorMessage } from '../../utils/http';
+import { getAuthInputError } from '../../utils/validation';
 import Button from '../Button/Button';
 
 interface RegisterProps {
@@ -11,26 +11,26 @@ interface RegisterProps {
 }
 
 function Register({ onRegister }: RegisterProps): React.JSX.Element {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [data, setData] = useState<RegisterData>({
+    name: '',
+    email: '',
+    password: '',
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { errors, isValid, validateInput, validateForm } =
+    useFormValidation(false, getAuthInputError);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
-    setErrorMessage(null);
+
+    if (!validateForm(event.currentTarget) || isSubmitting) {
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      await onRegister({ name, email, password });
-    } catch (error) {
-      setErrorMessage(
-        getApiErrorMessage(
-          error,
-          'No pudimos crear tu cuenta. Inténtalo nuevamente.',
-        ),
-      );
+      await onRegister(data);
     } finally {
       setIsSubmitting(false);
     }
@@ -47,61 +47,121 @@ function Register({ onRegister }: RegisterProps): React.JSX.Element {
           Organiza tus preferencias y guarda notas privadas sobre cada Pokémon.
         </p>
 
-        <form className="auth-form" onSubmit={handleSubmit}>
+        <form
+          aria-busy={isSubmitting}
+          className="auth-form"
+          noValidate
+          onSubmit={handleSubmit}
+        >
           <label className="auth-form__field">
             <span className="auth-form__label">Nombre</span>
             <input
-              className="auth-form__input"
-              type="text"
-              name="name"
+              aria-describedby="register-name-input-error"
+              aria-invalid={Boolean(errors.name)}
               autoComplete="name"
-              placeholder="Tu nombre"
-              minLength={2}
+              className={`auth-form__input ${
+                errors.name ? 'auth-form__input_type_error' : ''
+              }`}
+              id="register-name-input"
               maxLength={30}
+              minLength={2}
+              name="name"
+              placeholder="Tu nombre"
               required
-              value={name}
-              onChange={(event) => setName(event.target.value)}
+              type="text"
+              value={data.name}
+              onBlur={(event) => validateInput(event.currentTarget)}
+              onChange={(event) => {
+                setData((currentData) => ({
+                  ...currentData,
+                  name: event.target.value,
+                }));
+                validateInput(event.currentTarget);
+              }}
             />
+            <span
+              className={`auth-form__input-error ${
+                errors.name ? 'auth-form__input-error_active' : ''
+              }`}
+              id="register-name-input-error"
+            >
+              {errors.name}
+            </span>
           </label>
 
           <label className="auth-form__field">
             <span className="auth-form__label">Correo electrónico</span>
             <input
-              className="auth-form__input"
-              type="email"
-              name="email"
+              aria-describedby="register-email-input-error"
+              aria-invalid={Boolean(errors.email)}
               autoComplete="email"
+              className={`auth-form__input ${
+                errors.email ? 'auth-form__input_type_error' : ''
+              }`}
+              id="register-email-input"
+              name="email"
               placeholder="nombre@correo.com"
               required
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              type="email"
+              value={data.email}
+              onBlur={(event) => validateInput(event.currentTarget)}
+              onChange={(event) => {
+                setData((currentData) => ({
+                  ...currentData,
+                  email: event.target.value,
+                }));
+                validateInput(event.currentTarget);
+              }}
             />
+            <span
+              className={`auth-form__input-error ${
+                errors.email ? 'auth-form__input-error_active' : ''
+              }`}
+              id="register-email-input-error"
+            >
+              {errors.email}
+            </span>
           </label>
 
           <label className="auth-form__field">
             <span className="auth-form__label">Contraseña</span>
             <input
-              className="auth-form__input"
-              type="password"
-              name="password"
+              aria-describedby="register-password-input-error"
+              aria-invalid={Boolean(errors.password)}
               autoComplete="new-password"
-              placeholder="Mínimo 8 caracteres"
-              minLength={8}
+              className={`auth-form__input ${
+                errors.password ? 'auth-form__input_type_error' : ''
+              }`}
+              id="register-password-input"
               maxLength={72}
+              minLength={8}
+              name="password"
+              placeholder="Mínimo 8 caracteres"
               required
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              type="password"
+              value={data.password}
+              onBlur={(event) => validateInput(event.currentTarget)}
+              onChange={(event) => {
+                setData((currentData) => ({
+                  ...currentData,
+                  password: event.target.value,
+                }));
+                validateInput(event.currentTarget);
+              }}
             />
+            <span
+              className={`auth-form__input-error ${
+                errors.password ? 'auth-form__input-error_active' : ''
+              }`}
+              id="register-password-input-error"
+            >
+              {errors.password}
+            </span>
           </label>
-
-          {errorMessage && (
-            <p className="auth-form__error" role="alert">
-              {errorMessage}
-            </p>
-          )}
 
           <Button
             className="auth-form__submit"
+            disabled={!isValid || isSubmitting}
             isLoading={isSubmitting}
             loadingLabel="Creando cuenta"
             type="submit"
