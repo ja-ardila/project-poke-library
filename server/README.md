@@ -3,6 +3,14 @@
 API REST de Poké Library construida con Express, TypeScript, MongoDB y
 Mongoose. Gestiona la autenticación y la biblioteca privada de cada usuario.
 
+## Despliegue
+
+- [API en Vercel](https://project-poke-library-server.vercel.app)
+- [Estado del servicio](https://project-poke-library-server.vercel.app/health)
+- [Frontend de Poké Library](https://project-poke-library-client.vercel.app)
+
+La API se ejecuta en Vercel y persiste los datos en MongoDB Atlas.
+
 ## Funcionalidades
 
 - Registro con correo único, nombre y contraseña protegida mediante bcrypt.
@@ -27,8 +35,9 @@ PORT=3001
 CLIENT_ORIGIN=http://localhost:3000
 ```
 
-En producción, `MONGO_URI` debe apuntar a la base de datos desplegada y
-`CLIENT_ORIGIN` al dominio público del frontend. Se pueden permitir varios
+En producción, `MONGO_URI` debe apuntar a MongoDB Atlas y `CLIENT_ORIGIN` al
+dominio público del frontend, actualmente
+`https://project-poke-library-client.vercel.app`. Se pueden permitir varios
 orígenes separándolos por comas.
 
 ## Instalación y ejecución

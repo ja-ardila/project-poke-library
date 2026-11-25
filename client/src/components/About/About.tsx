@@ -7,13 +7,13 @@ function About(): React.JSX.Element {
           Hola, soy Juan Andrés Ardila
         </h1>
         <p className="about__text">
-          Estoy construyendo Poké Library como un proyecto full stack para
-          practicar React, TypeScript, consumo de APIs y, en la siguiente
-          etapa, autenticación y persistencia de datos.
+          Construí Poké Library como un proyecto full stack para poner en
+          práctica React, TypeScript, consumo de APIs, autenticación y
+          persistencia de datos.
         </p>
         <p className="about__text">
-          La aplicación comienza como una Pokédex sencilla y evolucionará
-          hasta permitir que cada usuario organice sus preferencias y notas
+          La aplicación combina una Pokédex de Kanto con una biblioteca privada
+          en la que cada usuario puede organizar sus preferencias y notas
           personales.
         </p>
       </section>

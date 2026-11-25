@@ -5,6 +5,16 @@ TypeScript, Vite, Express y MongoDB. El catálogo público consulta PokéAPI y l
 cuentas autorizadas pueden organizar una biblioteca privada con preferencias y
 notas personales.
 
+## Despliegue
+
+- [Aplicación web](https://project-poke-library-client.vercel.app)
+- [API REST](https://project-poke-library-server.vercel.app)
+- [Estado de la API](https://project-poke-library-server.vercel.app/health)
+
+El frontend y el backend están desplegados como dos proyectos independientes en
+Vercel. La API utiliza MongoDB Atlas para persistir usuarios, preferencias y
+notas personales.
+
 ## Catálogo público
 
 - Catálogo inicial de los Pokémon de Kanto, IDs 1 a 151.
@@ -60,6 +70,9 @@ web_project_around_full, sin modificar ese repositorio.
 La documentación de la API propia, sus rutas y las capturas de sus pruebas en
 Postman están disponibles en el [README del servidor](server/README.md#evidencias-visuales-en-postman).
 
+La documentación del frontend y su galería de capturas están disponibles en el
+[README del cliente](client/README.md#capturas).
+
 ## Comandos
 
 Configura las variables de entorno a partir de los archivos de ejemplo:
@@ -87,12 +100,12 @@ Comprueba ambas aplicaciones y genera sus compilaciones de producción:
     npm run build
 
 El cliente exige `VITE_API_URL` para conectarse con la API propia. En local se
-configura con `http://localhost:3001`; en producción deberá contener la URL
-pública del servidor desplegado.
+configura con `http://localhost:3001`; en el despliegue actual utiliza
+`https://project-poke-library-server.vercel.app`.
 
 ## API de terceros
 
-La aplicación utilizará exclusivamente los recursos de Pokémon y especies de
+La aplicación utiliza exclusivamente los recursos de Pokémon y especies de
 [PokéAPI v2](https://pokeapi.co/docs/v2).
 
 ### Capa de datos
