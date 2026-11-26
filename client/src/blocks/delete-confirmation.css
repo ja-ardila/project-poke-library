@@ -1,0 +1,90 @@
+.popup__content_type_delete-confirmation {
+  width: min(100%, 460px);
+  overflow: hidden;
+}
+
+.delete-confirmation {
+  padding: 48px 42px 38px;
+  text-align: center;
+}
+
+.delete-confirmation__icon {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 22px;
+  border-radius: 50%;
+  background-color: #fff0f1;
+  color: #b12636;
+  display: grid;
+  place-items: center;
+}
+
+.delete-confirmation__icon svg {
+  width: 32px;
+  height: 32px;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.delete-confirmation__eyebrow {
+  margin: 0 0 10px;
+  color: var(--color-primary);
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.delete-confirmation__title {
+  margin: 0;
+  font-size: clamp(1.7rem, 6vw, 2.25rem);
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+  overflow-wrap: anywhere;
+}
+
+.delete-confirmation__description {
+  margin: 16px auto 0;
+  color: var(--color-muted);
+  line-height: 1.6;
+}
+
+.delete-confirmation__error {
+  margin: 20px 0 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background-color: #fff0f1;
+  color: #a51f31;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.delete-confirmation__actions {
+  margin-top: 28px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.delete-confirmation__submit {
+  border-color: #b12636;
+  background-color: #b12636;
+}
+
+.delete-confirmation__submit:hover {
+  border-color: #8c1e2c;
+  background-color: #8c1e2c;
+}
+
+@media screen and (max-width: 480px) {
+  .delete-confirmation {
+    padding: 44px 22px 28px;
+  }
+
+  .delete-confirmation__actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

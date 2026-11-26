@@ -20,3 +20,17 @@ export type {
   PokemonType,
 } from './Pokemon';
 
+export type {
+  AuthResponse,
+  CurrentUser,
+  LoginCredentials,
+  RegisterData,
+} from './Auth';
+
+export type {
+  CreateSavedPokemonData,
+  PokemonPreference,
+  SavedPokemonEntry,
+  UpdateSavedPokemonData,
+} from './SavedPokemon';
+

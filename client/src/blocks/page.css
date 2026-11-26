@@ -28,7 +28,8 @@ body {
 }
 
 button,
-input {
+input,
+textarea {
   font: inherit;
 }
 
@@ -40,6 +41,11 @@ a {
 a:focus-visible,
 button:focus-visible,
 input:focus-visible {
+  outline: 3px solid rgba(36, 104, 229, 0.35);
+  outline-offset: 3px;
+}
+
+textarea:focus-visible {
   outline: 3px solid rgba(36, 104, 229, 0.35);
   outline-offset: 3px;
 }

@@ -20,7 +20,10 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 export function getPokemonTypeLabel(typeName: string): string {
-  return TYPE_LABELS[typeName] ?? typeName;
+  const normalizedTypeName =
+    typeName.charAt(0).toUpperCase() + typeName.slice(1).toLowerCase();
+
+  return TYPE_LABELS[normalizedTypeName] ?? normalizedTypeName;
 }
 
 export function getPokemonTypeModifier(typeName: string): string {

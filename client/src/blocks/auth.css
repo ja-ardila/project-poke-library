@@ -1,0 +1,133 @@
+.auth-page {
+  padding-top: 64px;
+  padding-bottom: 88px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex: 1;
+}
+
+.auth-card {
+  width: min(100%, 520px);
+  padding: clamp(30px, 6vw, 52px);
+  border: 1px solid var(--color-border);
+  border-radius: 28px;
+  background-color: #fff;
+  box-shadow: var(--shadow-card);
+}
+
+.auth-card__eyebrow {
+  margin: 0 0 12px;
+  color: var(--color-primary);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.auth-card__title {
+  margin: 0;
+  font-size: clamp(2rem, 7vw, 3rem);
+  letter-spacing: -0.045em;
+}
+
+.auth-card__description {
+  margin: 16px 0 28px;
+  color: var(--color-muted);
+  line-height: 1.65;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.auth-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.auth-form__label {
+  color: var(--color-text);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.auth-form__input {
+  width: 100%;
+  min-height: 50px;
+  padding: 0 15px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background-color: #fbfcff;
+  color: var(--color-text);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.auth-form__input:hover {
+  border-color: #afbdd3;
+}
+
+.auth-form__input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(36, 104, 229, 0.12);
+}
+
+.auth-form__input_type_error,
+.auth-form__input_type_error:hover,
+.auth-form__input_type_error:focus {
+  border-color: #d9263e;
+  box-shadow: 0 0 0 3px rgba(217, 38, 62, 0.1);
+}
+
+.auth-form__input-error {
+  min-height: 18px;
+  margin-top: -2px;
+  color: #d9263e;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  visibility: hidden;
+}
+
+.auth-form__input-error_active {
+  visibility: visible;
+}
+
+.auth-form__submit {
+  width: 100%;
+  margin-top: 4px;
+}
+
+.auth-card__alternative {
+  margin: 24px 0 0;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.auth-card__link {
+  color: var(--color-primary);
+  font-weight: 800;
+}
+
+.auth-loader {
+  padding-top: 72px;
+  padding-bottom: 72px;
+  flex: 1;
+}
+
+@media screen and (max-width: 600px) {
+  .auth-page {
+    padding-top: 36px;
+    padding-bottom: 56px;
+  }
+
+  .auth-card {
+    padding: 28px 22px;
+    border-radius: 22px;
+  }
+}

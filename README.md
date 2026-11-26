@@ -1,11 +1,21 @@
 # Poké Library
 
-Poké Library es una enciclopedia web de Pokémon construida con React,
-TypeScript y Vite. La primera etapa presenta una aplicación pública que
-consulta PokéAPI; una etapa posterior incorporará autenticación y una
-biblioteca privada con favoritos, Pokémon que no le gustan al usuario y notas.
+Poké Library es una enciclopedia full stack de Pokémon construida con React,
+TypeScript, Vite, Express y MongoDB. El catálogo público consulta PokéAPI y las
+cuentas autorizadas pueden organizar una biblioteca privada con preferencias y
+notas personales.
 
-## Alcance de la primera etapa
+## Despliegue
+
+- [Aplicación web](https://project-poke-library-client.vercel.app)
+- [API REST](https://project-poke-library-server.vercel.app)
+- [Estado de la API](https://project-poke-library-server.vercel.app/health)
+
+El frontend y el backend están desplegados como dos proyectos independientes en
+Vercel. La API utiliza MongoDB Atlas para persistir usuarios, preferencias y
+notas personales.
+
+## Catálogo público
 
 - Catálogo inicial de los Pokémon de Kanto, IDs 1 a 151.
 - Búsqueda por nombre o número.
@@ -13,6 +23,18 @@ biblioteca privada con favoritos, Pokémon que no le gustan al usuario y notas.
 - Información descriptiva obtenida de /pokemon-species/{id or name}.
 - Página principal y página «Sobre el autor».
 - Interfaz adaptable desde 320 px.
+
+## Autorización y biblioteca privada
+
+- Registro e inicio de sesión en las rutas `/signup` y `/signin`.
+- JWT almacenado en `localStorage` y restauración de la sesión al recargar.
+- Contexto global `currentUser` para compartir los datos de la persona.
+- Encabezado diferente para visitantes y usuarios autorizados.
+- Ruta protegida `/mypokemon`, con redirección al inicio de sesión.
+- Guardado de Pokémon como favoritos o como «No me gusta» desde su detalle.
+- Dos listas privadas, cambio de preferencia y notas editables en un popup.
+- Eliminación desde el botón circular de cada tarjeta o desde su detalle
+  privado, con un popup de confirmación compartido.
 
 ## Funcionalidad actual
 
@@ -28,6 +50,9 @@ biblioteca privada con favoritos, Pokémon que no le gustan al usuario y notas.
   superposición o tecla Escape y restauración del foco.
 - Consulta diferida de la especie: `/pokemon-species/{id}` se solicita solo al
   abrir el detalle y cuenta con carga, error y reintento propios.
+- Los detalles públicos y privados limitan su altura y permiten desplazamiento
+  interno para mantener visibles todas las acciones en pantallas bajas o con
+  zoom aumentado.
 
 ## Presentación de los datos
 
@@ -40,30 +65,51 @@ mítico o bebé cuando correspondan.
 
     project-poke-library/
     ├── client/   # React, TypeScript, Vite, React Router y estilos BEM
-    ├── server/   # Reservado para la API propia de la etapa full stack
+    ├── server/   # Express, TypeScript, MongoDB, JWT y API REST propia
     └── package.json
 
 El proyecto toma como referencia la separación de responsabilidades de
 web_project_around_full, sin modificar ese repositorio.
 
+La documentación de la API propia, sus rutas y las capturas de sus pruebas en
+Postman están disponibles en el [README del servidor](server/README.md#evidencias-visuales-en-postman).
+
+La documentación del frontend y su galería de capturas están disponibles en el
+[README del cliente](client/README.md#capturas).
+
 ## Comandos
 
-Instala las dependencias desde la raíz:
+Configura las variables de entorno a partir de los archivos de ejemplo:
+
+    cp client/.env.example client/.env
+    cp server/.env.example server/.env
+
+Instala las dependencias del proyecto. El comando raíz instala también las de
+`client` y `server`:
 
     npm install
 
-Inicia el cliente en http://localhost:3000:
+Inicia el cliente y el servidor a la vez:
 
     npm run dev
 
-Comprueba la calidad y genera la compilación de producción:
+También puedes iniciarlos por separado:
+
+    npm run dev:client
+    npm run dev:server
+
+Comprueba ambas aplicaciones y genera sus compilaciones de producción:
 
     npm run lint
     npm run build
 
+El cliente exige `VITE_API_URL` para conectarse con la API propia. En local se
+configura con `http://localhost:3001`; en el despliegue actual utiliza
+`https://project-poke-library-server.vercel.app`.
+
 ## API de terceros
 
-La aplicación utilizará exclusivamente los recursos de Pokémon y especies de
+La aplicación utiliza exclusivamente los recursos de Pokémon y especies de
 [PokéAPI v2](https://pokeapi.co/docs/v2).
 
 ### Capa de datos
