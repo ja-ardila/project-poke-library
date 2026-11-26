@@ -23,6 +23,8 @@ La API se ejecuta en Vercel y persiste los datos en MongoDB Atlas.
 - CORS configurable para uno o varios dominios del cliente.
 - Límites generales y límites específicos para registro e inicio de sesión.
 - Validación de controladores, esquemas de Mongoose y errores centralizados.
+- Rutas públicas de registro e inicio de sesión agrupadas en un router de
+  autenticación y montadas antes del middleware que protege la API privada.
 
 ## Variables de entorno
 
@@ -92,6 +94,22 @@ El cuerpo de creación de un Pokémon tiene esta forma:
 `preference` acepta únicamente `favorite` o `disliked`. Un usuario no puede
 guardar dos veces el mismo `pokemonId`, pero puede moverlo entre listas con la
 ruta `PATCH`.
+
+## Límite de búsqueda de PokéAPI
+
+La aplicación desplegada consume la instancia pública de PokéAPI. En esa
+instancia, `/api/v2/pokemon/{id-or-name}` requiere el identificador o el nombre
+completo del Pokémon, mientras que el listado público solo admite paginación
+mediante `limit` y `offset`.
+
+La especificación de PokéAPI incluye un parámetro `q` para búsquedas parciales,
+pero aclara que está disponible únicamente al ejecutar la API localmente y no
+en `pokeapi.co`. Por esa razón, una búsqueda como `pika` no puede resolverse en
+el despliegue online sin añadir un índice o filtrado propio, funcionalidad que
+intencionalmente no forma parte de este proyecto.
+
+- [Documentación oficial de PokéAPI](https://pokeapi.co/docs/v2)
+- [Especificación del listado y parámetro `q`](https://pokeapi.co/v2/openapi/operations/pokemon_list)
 
 ## Respuestas de error
 

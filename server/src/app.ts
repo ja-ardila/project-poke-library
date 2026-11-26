@@ -5,24 +5,18 @@ dotenv.config();
 import cors from "cors";
 import type { CorsOptions } from "cors";
 import express from "express";
-import type { NextFunction, Request, Response } from "express";
 
-import { createUser, login } from "./controllers/users.js";
 import { auth } from "./middleware/auth.js";
+import { requireDatabase } from "./middleware/database.js";
 import { errorHandler } from "./middleware/error-handler.js";
-import {
-  apiLimiter,
-  loginLimiter,
-  registerLimiter,
-} from "./middleware/limiter.js";
-import router from "./routes/index.js";
+import { apiLimiter } from "./middleware/limiter.js";
+import { protectedRouter, publicRouter } from "./routes/index.js";
 import {
   ERROR_MESSAGES,
   HEALTH_STATUS,
   HTTP_STATUS,
   REQUEST_BODY_LIMIT,
 } from "./utils/constants.js";
-import { connectDatabase } from "./utils/database.js";
 import { HttpError } from "./utils/errors.js";
 
 const app = express();
@@ -60,19 +54,6 @@ const corsOptions: CorsOptions = {
   },
 };
 
-const requireDatabase = async (
-  _req: Request,
-  _res: Response,
-  next: NextFunction,
-): Promise<void> => {
-  try {
-    await connectDatabase(mongoUri);
-    next();
-  } catch (error) {
-    next(error);
-  }
-};
-
 app.set("trust proxy", 1);
 
 app.use(cors(corsOptions));
@@ -84,12 +65,11 @@ app.get("/health", (_req, res) => {
   res.status(HTTP_STATUS.OK).json({ status: HEALTH_STATUS });
 });
 
-app.post("/signup", registerLimiter, requireDatabase, createUser);
-app.post("/signin", loginLimiter, requireDatabase, login);
+app.use(publicRouter);
 
 app.use(auth);
 app.use(requireDatabase);
-app.use(router);
+app.use(protectedRouter);
 
 app.use(errorHandler);
 

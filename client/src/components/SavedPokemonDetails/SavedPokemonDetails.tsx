@@ -17,7 +17,7 @@ import Popup from '../Popup/Popup';
 interface SavedPokemonDetailsProps {
   entry: SavedPokemonEntry;
   onClose: () => void;
-  onDelete: (entryId: string) => Promise<void>;
+  onRequestDelete: (entry: SavedPokemonEntry) => void;
   onUpdate: (
     entryId: string,
     data: UpdateSavedPokemonData,
@@ -27,7 +27,7 @@ interface SavedPokemonDetailsProps {
 function SavedPokemonDetails({
   entry,
   onClose,
-  onDelete,
+  onRequestDelete,
   onUpdate,
 }: SavedPokemonDetailsProps): React.JSX.Element {
   const [note, setNote] = useState(entry.note);
@@ -37,8 +37,6 @@ function SavedPokemonDetails({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const titleId = `saved-pokemon-${entry._id}`;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
@@ -59,26 +57,6 @@ function SavedPokemonDetails({
       );
     } finally {
       setIsSaving(false);
-    }
-  }
-
-  async function handleDelete(): Promise<void> {
-    setErrorMessage(null);
-    setSuccessMessage(null);
-    setIsDeleting(true);
-
-    try {
-      await onDelete(entry._id);
-      onClose();
-    } catch (error) {
-      setErrorMessage(
-        getApiErrorMessage(
-          error,
-          'No pudimos eliminar este Pokémon. Inténtalo nuevamente.',
-        ),
-      );
-      setIsDeleting(false);
-      setIsConfirmingDelete(false);
     }
   }
 
@@ -177,37 +155,16 @@ function SavedPokemonDetails({
             >
               Guardar cambios
             </Button>
-            {!isConfirmingDelete ? (
-              <Button
-                className="saved-details__delete"
-                type="button"
-                variant="ghost"
-                onClick={() => setIsConfirmingDelete(true)}
-              >
-                Eliminar de mi biblioteca
-              </Button>
-            ) : (
-              <div className="saved-details__confirmation" role="alert">
-                <span>¿Eliminar definitivamente?</span>
-                <Button
-                  className="saved-details__confirm-delete"
-                  isLoading={isDeleting}
-                  loadingLabel="Eliminando"
-                  type="button"
-                  onClick={() => void handleDelete()}
-                >
-                  Sí, eliminar
-                </Button>
-                <Button
-                  disabled={isDeleting}
-                  type="button"
-                  variant="secondary"
-                  onClick={() => setIsConfirmingDelete(false)}
-                >
-                  Cancelar
-                </Button>
-              </div>
-            )}
+            <Button
+              className="saved-details__delete"
+              type="button"
+              variant="ghost"
+              onClick={() =>
+                onRequestDelete({ ...entry, note, preference })
+              }
+            >
+              Eliminar de mi biblioteca
+            </Button>
           </div>
         </form>
       </article>

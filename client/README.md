@@ -29,7 +29,11 @@ rutas de React Router se redirigen a `index.html` mediante `vercel.json`.
 - Restauración de la sesión mediante un JWT almacenado en `localStorage`.
 - Ruta protegida `/mypokemon`.
 - Guardado de Pokémon como favoritos o como «No me gusta».
-- Cambio de preferencia, notas personales y eliminación con confirmación.
+- Cambio de preferencia y notas personales desde el detalle privado.
+- Eliminación mediante un botón circular con papelera en cada tarjeta o desde
+  su detalle, usando el mismo popup de confirmación en ambos casos.
+- Scroll interno en los detalles públicos y privados para conservar el acceso a
+  todas las acciones en pantallas bajas o con zoom aumentado.
 - Estados de carga, validación, error y resultados vacíos.
 
 ## Tecnologías

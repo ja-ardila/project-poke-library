@@ -33,7 +33,8 @@ notas personales.
 - Ruta protegida `/mypokemon`, con redirección al inicio de sesión.
 - Guardado de Pokémon como favoritos o como «No me gusta» desde su detalle.
 - Dos listas privadas, cambio de preferencia y notas editables en un popup.
-- Eliminación con confirmación desde la biblioteca privada.
+- Eliminación desde el botón circular de cada tarjeta o desde su detalle
+  privado, con un popup de confirmación compartido.
 
 ## Funcionalidad actual
 
@@ -49,6 +50,9 @@ notas personales.
   superposición o tecla Escape y restauración del foco.
 - Consulta diferida de la especie: `/pokemon-species/{id}` se solicita solo al
   abrir el detalle y cuenta con carga, error y reintento propios.
+- Los detalles públicos y privados limitan su altura y permiten desplazamiento
+  interno para mantener visibles todas las acciones en pantallas bajas o con
+  zoom aumentado.
 
 ## Presentación de los datos
 

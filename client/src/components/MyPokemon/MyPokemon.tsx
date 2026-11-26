@@ -6,6 +6,7 @@ import type {
   SavedPokemonEntry,
   UpdateSavedPokemonData,
 } from '../../interfaces';
+import DeletePokemonConfirmation from '../DeletePokemonConfirmation/DeletePokemonConfirmation';
 import EmptyState from '../EmptyState/EmptyState';
 import ErrorMessage from '../ErrorMessage/ErrorMessage';
 import Preloader from '../Preloader/Preloader';
@@ -36,6 +37,8 @@ function MyPokemon({
   const navigate = useNavigate();
   const [selectedEntry, setSelectedEntry] =
     useState<SavedPokemonEntry | null>(null);
+  const [entryPendingDeletion, setEntryPendingDeletion] =
+    useState<SavedPokemonEntry | null>(null);
   const favoriteEntries = useMemo(
     () => entries.filter((entry) => entry.preference === 'favorite'),
     [entries],
@@ -54,6 +57,23 @@ function MyPokemon({
     return updatedEntry;
   }
 
+  async function handleDelete(entryId: string): Promise<void> {
+    await onDelete(entryId);
+    setEntryPendingDeletion(null);
+
+    if (selectedEntry?._id === entryId) {
+      setSelectedEntry(null);
+    }
+  }
+
+  function handleRequestDelete(entry: SavedPokemonEntry): void {
+    if (selectedEntry?._id === entry._id) {
+      setSelectedEntry(entry);
+    }
+
+    setEntryPendingDeletion(entry);
+  }
+
   function renderEntryList(
     listEntries: SavedPokemonEntry[],
     label: string,
@@ -66,7 +86,11 @@ function MyPokemon({
       <ul className="my-pokemon__grid" aria-label={label}>
         {listEntries.map((entry) => (
           <li className="my-pokemon__item" key={entry._id}>
-            <SavedPokemonCard entry={entry} onSelect={setSelectedEntry} />
+            <SavedPokemonCard
+              entry={entry}
+              onRequestDelete={handleRequestDelete}
+              onSelect={setSelectedEntry}
+            />
           </li>
         ))}
       </ul>
@@ -131,13 +155,22 @@ function MyPokemon({
         </section>
       )}
 
-      {selectedEntry && (
+      {selectedEntry && !entryPendingDeletion && (
         <SavedPokemonDetails
           key={selectedEntry._id}
           entry={selectedEntry}
           onClose={() => setSelectedEntry(null)}
-          onDelete={onDelete}
+          onRequestDelete={handleRequestDelete}
           onUpdate={handleUpdate}
+        />
+      )}
+
+      {entryPendingDeletion && (
+        <DeletePokemonConfirmation
+          key={entryPendingDeletion._id}
+          entry={entryPendingDeletion}
+          onClose={() => setEntryPendingDeletion(null)}
+          onConfirm={handleDelete}
         />
       )}
     </main>

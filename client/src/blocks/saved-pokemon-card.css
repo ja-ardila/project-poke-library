@@ -5,6 +5,8 @@
   background-color: #fff;
   box-shadow: 0 12px 30px rgba(36, 52, 84, 0.07);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
   position: relative;
   transition:
     box-shadow 0.2s ease,
@@ -31,6 +33,50 @@
   position: absolute;
   inset: 0;
   z-index: 2;
+}
+
+.saved-pokemon-card__delete {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid rgba(220, 227, 239, 0.95);
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 7px 18px rgba(36, 52, 84, 0.16);
+  color: var(--color-text);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 4;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.saved-pokemon-card__delete svg {
+  width: 19px;
+  height: 19px;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.saved-pokemon-card__delete:hover {
+  border-color: #f1b7be;
+  background-color: #fff0f1;
+  color: #b12636;
+  transform: translateY(-1px);
+}
+
+.saved-pokemon-card__delete:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 .saved-pokemon-card__image-wrapper {
@@ -61,7 +107,7 @@
 }
 
 .saved-pokemon-card__preference {
-  right: 14px;
+  right: 62px;
   color: var(--color-primary-dark);
 }
 
@@ -73,6 +119,9 @@
 
 .saved-pokemon-card__content {
   padding: 20px;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
 }
 
 .saved-pokemon-card__name {
